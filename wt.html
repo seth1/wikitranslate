@@ -33,7 +33,7 @@ function getOutput() {
 	var locale = locale.options[locale.selectedIndex].value;
 	var translatetext = document.getElementById("totranslate").value;
   getRequest(
-      'gethtml.php?locale=' + locale + '&word=' + encodeURIComponent(translatetext), // URL for the PHP file
+      'gethtml.php?locale=' + locale + '&word=' + encodeURIComponent(translatetext.replace(' ', '_')), // URL for the PHP file
        drawOutput,  // handle successful request
        drawError    // handle error
   );
