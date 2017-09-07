@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"/>
+<title>Wikipedia Translate | NOT affiliated with Wikipedia</title>
+</title>
+<style>
+textarea {
+	width:100%;
+	height:150px;
+}
+#container{
+	margin: 0 auto;
+	width: 1000px;
+	text-align: center;
+}
+#instructions{
+	text-align: left;
+}
+table{
+	margin: 0 auto; 
+}
+</style>
+<script>
+var oldtext = 'Instructions:\n1. Type a word into the left hand box.\n2. Hit the "Get Languages" button.\n3. After selecting the language hit the "Translate" button.';
+function start(){
+	var textarea = document.getElementById("totranslate");
+	textarea.value = oldtext;
+}
+
+/*GET WIKI */
+function getOutput() {
+	var locale = document.getElementById("localeselect");
+	var locale = locale.options[locale.selectedIndex].value;
+	var translatetext = document.getElementById("totranslate").value;
+  getRequest(
+      'gethtml.php?locale=' + locale + '&word=' + encodeURIComponent(translatetext), // URL for the PHP file
+       drawOutput,  // handle successful request
+       drawError    // handle error
+  );
+  return false;
+}  
+// handles drawing an error message
+function drawError() {
+    var container = document.getElementById('output');
+    container.innerHTML = 'Bummer: there was an error!';
+}
+// handles the response, adds the html
+function drawOutput(responseText) {
+    var container = document.getElementById('output');
+	var rx = new RegExp('interlanguage-link-target">(.+?)<', 'g');
+	var languagematches = new Array();
+	while((match = rx.exec(responseText)) !== null){
+		languagematches.push(match[1]);
+	}
+	var rx = new RegExp('<li class="interlanguage-link.+?wikipedia\.org/wiki/(.+?)" title="', 'g');
+	var translatedmatches = new Array();
+	while((match = rx.exec(responseText)) !== null){
+		translatedmatches.push(match[1]);
+	}
+	var rx = new RegExp('<li class="interlanguage-link.+?wikipedia\.org/wiki/.+?" title=".+? – (.+?)"', 'g');
+	var localelanguagematches = new Array();
+	while((match = rx.exec(responseText)) !== null){
+		localelanguagematches.push(match[1]);
+	}
+	var rx = new RegExp('hreflang="(.+?)" class="interlanguage-link-target"', 'g');
+	var languagecode = new Array();
+	while((match = rx.exec(responseText)) !== null){
+		languagecode.push(match[1]);
+	}
+	var tables = ''
+	i = 0
+	while(i<languagematches.length){
+		tables = tables + '<tr><td>' + decodeURIComponent(translatedmatches[i]).replace('_', ' ') + '</td><td>' + languagematches[i] + '</td><td>' + localelanguagematches[i] + '</td><td><a href="https://' + languagecode[i]+ '.wikipedia.org/wiki/' + translatedmatches[i] + '">Link</a></td></tr>';
+		i++
+	}
+    container.innerHTML = '<table border="1" id="translatedtable">'+tables+'</table>';
+}
+// helper function for cross-browser request object
+function getRequest(url, success, error) {
+    var req = false;
+    try{
+        // most browsers
+        req = new XMLHttpRequest();
+    } catch (e){
+        // IE
+        try{
+            req = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch(e) {
+            // try an older version
+            try{
+                req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch(e) {
+                return false;
+            }
+        }
+    }
+    if (!req) return false;
+    if (typeof success != 'function') success = function () {};
+    if (typeof error!= 'function') error = function () {};
+    req.onreadystatechange = function(){
+        if(req.readyState == 4) {
+            return req.status === 200 ? 
+                success(req.responseText) : error(req.status);
+        }
+    }
+    req.open("GET", url, true);
+    req.send(null);
+    return req;
+}
+</script>
+</head>
+<body>
+<div id="container">
+<h1>Wikipedia Translate</h1>
+<i>Translate a word using Wikipedia</i>
+<table>
+<tr><td>
+<select id="localeselect">
+<option value="ab">Abkhazian | Abkhazian</option>
+<option value="ace">Acèh | Achinese</option>
+<option value="ady">Адыгабзэ | Adyghe</option>
+<option value="af">Afrikaanse | Afrikaans</option>
+<option value="ak">Akan | Akan</option>
+<option value="als">Alemannic | Alemannic</option>
+<option value="am">አማርኛ | Amharic</option>
+<option value="an">Aragonese | Aragonese</option>
+<option value="ang">Ænglisc | Old English</option>
+<option value="ar">العربية | Arabic</option>
+<option value="arc">ܐܪܡܝܐ | Aramaic</option>
+<option value="arz">مصرى | Egyptian Arabic</option>
+<option value="as">Assamese | Assamese</option>
+<option value="ast">Asturian | Asturian</option>
+<option value="av">Avar | Avar</option>
+<option value="ay">Aymara | Aymara</option>
+<option value="az">Azərbaycanca | Azerbaijani</option>
+<option value="azb">Southern Azerbaijani | Southern Azerbaijani</option>
+<option value="ba">Bashkir | Bashkir</option>
+<option value="bal">Balochi | Balochi language</option>
+<option value="bar">Bavarian | Bavarian</option>
+<option value="bat-smg">Žemaitėška | Samogitian</option>
+<option value="bcl">Central Bicolano | Central_Bicolano</option>
+<option value="be">Беларуская | Belarusian</option>
+<option value="be-x-old">Беларуская (тарашкевіца)‎ | Belarusian (Taraškievica)</option>
+<option value="bg">Българоезична | Bulgarian</option>
+<option value="bh">Bhojpuri | Bhojpuri</option>
+<option value="bi">Bislama | Bislama</option>
+<option value="bjn">Banjar | Banjar</option>
+<option value="bm">Bambara | Bambara</option>
+<option value="bn">বাংলা | Bengali</option>
+<option value="bo">Tibetan | Tibetan</option>
+<option value="bpy">বিষ্ণুপ্রিয়া মনিপুরী | Bishnupriya Manipuri</option>
+<option value="br">Breton | Breton</option>
+<option value="bs">Bosanski | Bosnian</option>
+<option value="bug">Buginese | Buginese</option>
+<option value="bxr">Buryat (Russia) | Buryat (Russia)</option>
+<option value="ca">Català | Catalan</option>
+<option value="cbk-zam">Zamboanga Chavacano | Zamboanga Chavacano</option>
+<option value="cdo">Min Dong | Min Dong</option>
+<option value="ce">Chechen | Chechen</option>
+<option value="ceb">Sinugboanon | Cebuano</option>
+<option value="ch">Chamorro | Chamorro</option>
+<option value="chr">Cherokee | Cherokee</option>
+<option value="chy">Cheyenne | Cheyenne</option>
+<option value="ckb">Sorani Kurdish | Sorani Kurdish</option>
+<option value="co">Corsican | Corsican</option>
+<option value="cr">Cree | Cree</option>
+<option value="crh">Crimean Tatar | Crimean Tatar</option>
+<option value="cs">Ceská Wikipedie | Czech</option>
+<option value="csb">Kashubian | Kashubian</option>
+<option value="cu">Old Church Slavonic | Old Church Slavonic</option>
+<option value="cv">Chuvash | Chuvash</option>
+<option value="cy">Welsh | Welsh</option>
+<option value="da">Dansk | Danish</option>
+<option value="de">Deutschsprachige | German</option>
+<option value="diq">Zazaki | Zazaki</option>
+<option value="dsb">Dolnoserbska | Lower Sorbian</option>
+<option value="dv">ދިވެހިބަސް | Divehi</option>
+<option value="dz">Dzongkha | Dzongkha</option>
+<option value="ee">Ewe | Ewe</option>
+<option value="el">Ελληνικά | Greek</option>
+<option value="eml">Emilian-Romagnol | Emilian-Romagnol</option>
+<option value="en" selected>English | English</option>
+<option value="eo">Esperanto | Esperanto</option>
+<option value="es">Español | Spanish</option>
+<option value="et">Eestikeelne Vikipeedia | Estonian</option>
+<option value="eu">Euskarazko | Basque</option>
+<option value="fa">فارسی | Persian</option>
+<option value="ff">Fula | Fula</option>
+<option value="fi">Suomenkielinen | Finnish</option>
+<option value="fiu-vro">Voro | Võro</option>
+<option value="fj">Fijian | Fijian</option>
+<option value="fo">Faroese | Faroese</option>
+<option value="fr">Wikipédia en français | French</option>
+<option value="frp">Franco-Provençal | Franco-Provençal/Arpitan</option>
+<option value="frr">North Frisian | North Frisian</option>
+<option value="fur">Friulian | Friulian</option>
+<option value="fy">West Frisian | West Frisian</option>
+<option value="ga">Vicipéid na Gaeilge | Irish</option>
+<option value="gag">Gagauz | Gagauz</option>
+<option value="gan">Gan Chinese | Gan Chinese</option>
+<option value="gd">Scottish Gaelic | Scottish Gaelic</option>
+<option value="gl">Galipedia | Galician</option>
+<option value="glk">Gilaki | Gilaki</option>
+<option value="gn">Guarani | Guarani</option>
+<option value="gom">Konknni | Konkani</option>
+<option value="got">Gothic | Gothic</option>
+<option value="gu">Gujarati | Gujarati</option>
+<option value="gv">Manx | Manx</option>
+<option value="ha">Hausa | Hausa</option>
+<option value="hak">Hakka | Hakka</option>
+<option value="haw">Hawaiʻi | Hawaiian</option>
+<option value="he">עברית | Hebrew</option>
+<option value="hi">हिन्दी | Hindi</option>
+<option value="hif">Fiji Hindi | Fiji Hindi</option>
+<option value="hr">Hrvatska Wikipedija | Croatian</option>
+<option value="hsb">Hornjoserbska wikipedija | Upper Sorbian</option>
+<option value="ht">Haitian Creole | Haitian</option>
+<option value="hu">Magyar Wikipédia | Hungarian</option>
+<option value="hy">Հայերեն | Armenian</option>
+<option value="ia">Interlingua | Interlingua</option>
+<option value="id">Indonesia | Indonesian</option>
+<option value="ie">Interlingue | Interlingue</option>
+<option value="ig">Igbo | Igbo</option>
+<option value="ik">Inupiak | Inupiak</option>
+<option value="ilo">Ilokano | Ilokano</option>
+<option value="io">Ido | Ido</option>
+<option value="is">Icelandic | Icelandic</option>
+<option value="it">Italiano | Italian</option>
+<option value="iu">Iniktitut | Inuktitut</option>
+<option value="ja">日本語 | Japanese</option>
+<option value="jbo">Lojban | Lojban</option>
+<option value="jv">Javanese | Javanese</option>
+<option value="ka">ქართული | Georgian</option>
+<option value="kaa">Karakalpak | Karakalpak</option>
+<option value="kab">Kabyle | Kabyle</option>
+<option value="kbd">Адыгэбзэ | Kabardian</option>
+<option value="kbp">Kabɩyɛ | Kabiye</option>
+<option value="kg">Kongo | Kongo</option>
+<option value="ki">Kikuyu | Kikuyu</option>
+<option value="kl">Greenlandic | Greenlandic</option>
+<option value="km">Khmer | Khmer</option>
+<option value="kn">ಕನ್ನಡ | Kannada(</option>
+<option value="ko">한국어 | Korean</option>
+<option value="koi">Komi-Permyak | Komi-Permyak</option>
+<option value="krc">Karachay-Balkar | Karachay-Balkar</option>
+<option value="ks">Kashmiri | Kashmiri</option>
+<option value="ksh">Ripuarian | Ripuarian</option>
+<option value="ku">Kurdish | Kurdish</option>
+<option value="kv">Komi | Komi</option>
+<option value="kw">Cornish | Cornish</option>
+<option value="ky">Kyrgyz | Kyrgyz</option>
+<option value="la">Vicipaedia Latina | Latin</option>
+<option value="lad">Ladino | Ladino</option>
+<option value="lb">Luxembourgish | Luxembourgish</option>
+<option value="lbe">Lak | Lak</option>
+<option value="lez">Lezgi | Lezgian</option>
+<option value="lg">Luganda | Luganda</option>
+<option value="li">Limburgish | Limburgish</option>
+<option value="lij">Ligurian | Ligurian</option>
+<option value="lmo">Lombard | Lombard</option>
+<option value="ln">Lingala | Lingala</option>
+<option value="lo">Lao | Lao</option>
+<option value="lrc">Northern Luri | Northern Luri</option>
+<option value="lt">Lietuviškoji Vikipedija | Lithuanian</option>
+<option value="ltg">Latgalian | Latgalian</option>
+<option value="lv">Vikipedija latviešu valoda | Latvian</option>
+<option value="mai">Maithili | Maithili</option>
+<option value="map-bms">Banyumasan | Banyumasan</option>
+<option value="mdf">Moksha | Moksha</option>
+<option value="mg">Malagasy | Malagasy</option>
+<option value="mhr">Meadow Mari | Meadow Mari</option>
+<option value="mi">Maori | Maori</option>
+<option value="min">Minangkabau | Minangkabau</option>
+<option value="mk">Македонски | Macedonian</option>
+<option value="ml">Malayalam | Malayalam</option>
+<option value="mn">Монгол | Mongolian</option>
+<option value="mr">Marathi | Marathi</option>
+<option value="mrj">Hill Mari | Hill Mari</option>
+<option value="ms">Melayu | Malay</option>
+<option value="mt">Maltese | Maltese</option>
+<option value="mwl">Mirandese | Mirandese</option>
+<option value="my">မြန်မာဘာသာ | Burmese</option>
+<option value="myv">Erzya | Erzya</option>
+<option value="mzn">Mazandarani | Mazandarani</option>
+<option value="na">Nauruan | Nauruan</option>
+<option value="nah">Nahuatl | Nahuatl</option>
+<option value="nap">Neapolitan | Neapolitan</option>
+<option value="nds">Low Saxon | Low Saxon</option>
+<option value="nds-nl">Dutch Low Saxon | Dutch Low Saxon</option>
+<option value="ne">Nepali | Nepali</option>
+<option value="new">Newar | Newar / Nepal Bhasa</option>
+<option value="nl">Nederlandstalige | Dutch</option>
+<option value="nn">Nynorsk | Norwegian (Nynorsk)</option>
+<option value="no">Bokmål | Norwegian (Bokmål)</option>
+<option value="nov">Novial | Novial</option>
+<option value="nrm">Norman | Norman</option>
+<option value="nso">Northern Sotho | Northern Sotho</option>
+<option value="nv">Navajo | Navajo</option>
+<option value="ny">Chichewa | Chichewa</option>
+<option value="oc">Occitan | Occitan</option>
+<option value="om">Oromo | Oromo</option>
+<option value="or">Oriya | Oriya</option>
+<option value="os">Ossetian | Ossetian</option>
+<option value="pa">Eastern Punjabi | Eastern Punjabi</option>
+<option value="pag">Pangasinan | Pangasinan</option>
+<option value="pam">Kapampangan | Kapampangan</option>
+<option value="pap">Papiamentu | Papiamentu</option>
+<option value="pcd">Picard | Picard</option>
+<option value="pdc">Pennsylvania German | Pennsylvania German</option>
+<option value="pfl">Palatine German | Palatine German</option>
+<option value="pi">Pali | Pali</option>
+<option value="pih">Norfolk | Norfolk</option>
+<option value="pl">Polskojezyczna | Polish</option>
+<option value="pms">Piedmontese | Piedmontese</option>
+<option value="pnb">Western Punjabi | Western Punjabi</option>
+<option value="pnt">Pontic | Pontic</option>
+<option value="ps">Pashto | Pashto</option>
+<option value="pt">Wikipédia em português | Portuguese</option>
+<option value="qu">Quechua | Quechua</option>
+<option value="rm">Romansh | Romansh</option>
+<option value="rmy">Vlax Romani | Vlax Romani</option>
+<option value="rn">Kirundi | Kirundi</option>
+<option value="ro">Româna | Romanian</option>
+<option value="roa-rup">Aromanian | Aromanian</option>
+<option value="roa-tara">Tarantino | Tarantino</option>
+<option value="ru">Русский | Russian</option>
+<option value="rue">Rusyn | Rusyn</option>
+<option value="rw">Kinyarwanda | Kinyarwanda</option>
+<option value="sa">Sanskrit | Sanskrit</option>
+<option value="sah">Sakha | Sakha</option>
+<option value="sc">Sardinian | Sardinian</option>
+<option value="scn">Sicilian | Sicilian</option>
+<option value="sco">Scots | Scots</option>
+<option value="sd">سنڌي | Sindhi</option>
+<option value="se">Northern Sami | Northern Sami</option>
+<option value="sg">Sango | Sango</option>
+<option value="sh">Srpskohrvatska Wikipedija | Serbo-Croatian</option>
+<option value="si">Sinhalese | Sinhalese</option>
+<option value="simple">Simple English | Simple English</option>
+<option value="sk">Slovenská | Slovak</option>
+<option value="sl">Slovenska Wikipedija | Slovene</option>
+<option value="sm">Samoan | Samoan</option>
+<option value="sn">Shona | Shona</option>
+<option value="so">Somali | Somali</option>
+<option value="sq">Shqip | Albanian</option>
+<option value="sr">Српски / srpski | Serbian</option>
+<option value="srn">Sranan Tongo | Sranan Tongo</option>
+<option value="ss">Swati | Swati</option>
+<option value="st">Sesotho | Sesotho</option>
+<option value="stq">Saterland Frisian | Saterland Frisian</option>
+<option value="su">Sundanese | Sundanese</option>
+<option value="sv">Svenskspråkiga | Swedish</option>
+<option value="sw">Kiswahili | Swahili</option>
+<option value="szl">Silesian | Silesian</option>
+<option value="ta">Tamil | Tamil</option>
+<option value="tcy">Tulu | Tulu</option>
+<option value="te">తెలుగు | Telugu</option>
+<option value="tet">Tetum | Tetum</option>
+<option value="tg">Tajik | Tajik</option>
+<option value="th">ไทย | Thai</option>
+<option value="ti">Tigrinya | Tigrinya</option>
+<option value="tk">Turkmen | Turkmen</option>
+<option value="tl">Tagalog | Tagalog</option>
+<option value="tn">Tswana | Tswana</option>
+<option value="to">Tongan | Tongan</option>
+<option value="tpi">Tok Pisin | Tok Pisin</option>
+<option value="tr">Türkçe | Turkish</option>
+<option value="ts">Xitsonga | Tsonga</option>
+<option value="tt">Tatar | Tatar</option>
+<option value="tum">Tumbuku | Tumbuka</option>
+<option value="tw">Twi | Twi</option>
+<option value="ty">Tahitian | Tahitian</option>
+<option value="tyv">Tuvinian | Tuvan</option>
+<option value="udm">Udmurt | Udmurt</option>
+<option value="ug">ئۇيغۇرچە / Uyghurche | Uyghur</option>
+<option value="uk">Українська | Ukrainian</option>
+<option value="ur">اردو| Urdu</option>
+<option value="uz">Uzbek | Uzbek</option>
+<option value="ve">Venda | Venda</option>
+<option value="vec">Venetian | Venetian</option>
+<option value="vep">Veps | Veps</option>
+<option value="vi">Tiếng Việt | Vietnamese</option>
+<option value="vls">West Flemish | West Flemish</option>
+<option value="vo">Vükiped | Volapük</option>
+<option value="wa">Walloon | Walloon</option>
+<option value="war">Waray | Waray</option>
+<option value="wo">Wolof | Wolof</option>
+<option value="wuu">吴语 | Wu Chinese</option>
+<option value="xal">Kalmyk | Kalmyk</option>
+<option value="xh">IsiXhosa | Xhosa</option>
+<option value="xmf">Mingrelian | Mingrelian</option>
+<option value="yi">ייִדיש | Yiddish</option>
+<option value="yo">Yorùbá | Yoruba</option>
+<option value="za">Zhuang | Zhuang</option>
+<option value="zea">Zealandic | Zealandic</option>
+<option value="zh">中文 | Chinese</option>
+<option value="zh-classical">文言 | Classical Chinese</option>
+<option value="zh-min-nan">Bân-lâm-gú | Chinese (Min Nan)</option>
+<option value="zh-yue">粵語 | Cantonese</option>
+<option value="zu">Zulu | Zulu</option>
+</select>
+</td>
+</tr>
+<tr height="200px">
+<td>
+<form name="fb">
+<textarea name="fname" height="100%" width="100%" placeholder="Type a word here and hit translate!" id="totranslate"></textarea>
+</form>
+</td>
+</tr>
+</table><br>
+<a href="javascript:void(0);" onclick="return getOutput();"> Click to see Translations </a>
+<div id="output"></div>
+</div>
